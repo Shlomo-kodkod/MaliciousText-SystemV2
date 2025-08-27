@@ -1,7 +1,5 @@
 from pymongo import MongoClient
-import pandas as pd
 import logging
-from app import config
 
 logger = logging.getLogger(__name__)
 
@@ -10,14 +8,13 @@ class DAL:
     def __init__(self):
         self.__client = None
         self.__db = None
-        self.__df = None
 
-    def connect(self):
+    def connect(self, protocol: str, username: str, password: str, cluster: str):
         """
-        Connect to the mongo atlas database.
+        Connect to the mongo database.
         """
         try:
-            uri = f"mongodb+srv://{config.username}:{config.password}@{config.cluster}.mongodb.net/"
+            uri = f"{protocol}://{username}:{password}@{cluster}.mongodb.net/"
             self.__client = MongoClient(uri)
             self.__db = self.__client[config.db]
             logger.info(f"Connected to mongodb.")
@@ -27,28 +24,36 @@ class DAL:
 
     def disconnect(self):
         """
-        Disconnect from the mongo atlas database.
+        Disconnect from the mongo database.
         """
         if self.__client is not None:
             self.__client.close()
             logger.info("Database connection closed.")
 
-    def read_collection(self, collection_name=config.collection):
+    def read_collection(self, collection_name, query):
         """""
-        Read a collection from the mongo atlas database.
+        Read a collection from the mongo database.
         """
         try:
             collection = self.__db[collection_name]
-            data = list(collection.find({}, {"_id": 0}))
+            data = list(collection.find(query))
             logger.info(f"Data loaded successfully.")
-            self.__df = pd.DataFrame(data)
+            return data
         except Exception as e:
             logger.error(f"Failed to retrieve collection: {e}")
             raise e
-
-    @property
-    def get_df(self) -> pd.DataFrame:
+        
+    def create_document(self, data: dict):
         """
-        Get the dataframe containing the collection data.
+        Create a soldier document and insert into the mongodb collection.
         """
-        return self.__df
+        try:
+            collection = self.__db[config.collection]
+            result = collection.insert_one(data)
+            logger.info(f"Data inserted successfully.")
+            return result.acknowledged
+        except Exception as e:
+            logger.error(f"Failed to insert data: {e}")
+            raise e
+        
+   
