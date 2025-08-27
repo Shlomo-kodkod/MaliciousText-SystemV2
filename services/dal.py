@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 
 class DAL:
-    def __init__(self):
+    def __init__(self, db, ):
         self.__client = None
         self.__db = None
 
@@ -16,7 +16,7 @@ class DAL:
         try:
             uri = f"{protocol}://{username}:{password}@{cluster}.mongodb.net/"
             self.__client = MongoClient(uri)
-            self.__db = self.__client[config.db]
+            self.__db = self.__client[self.__db]
             logger.info(f"Connected to mongodb.")
         except Exception as e:
             logger.error(f"Failed to connect to mongodb: {e}")
@@ -43,12 +43,12 @@ class DAL:
             logger.error(f"Failed to retrieve collection: {e}")
             raise e
         
-    def create_document(self, data: dict):
+    def create_document(self, collection_name, data: dict):
         """
         Create a soldier document and insert into the mongodb collection.
         """
         try:
-            collection = self.__db[config.collection]
+            collection = self.__db[collection_name]
             result = collection.insert_one(data)
             logger.info(f"Data inserted successfully.")
             return result.acknowledged
