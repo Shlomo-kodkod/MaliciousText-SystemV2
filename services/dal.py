@@ -40,7 +40,7 @@ class DAL:
         """
         try:
             collection = self.__db[collection_name]
-            data = list(collection.find(query))
+            data = list(collection.aggregate(query))
             logger.info(f"Data loaded successfully.")
             return data
         except Exception as e:
