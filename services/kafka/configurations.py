@@ -10,9 +10,9 @@ def get_producer_config():
     Create a producer object and return it.
     """
     logging.info("Creating producer object ..")
-    producer = KafkaProducer(bootstrap_servers=['kafka:9092'],
+    producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                              value_serializer=lambda x:
-                             json.dumps(x).encode('utf-8'))
+                             json.dumps(x, default= lambda x : str(x)).encode('utf-8'))
     return producer
 
 
@@ -24,6 +24,6 @@ def get_consumer_events(topic, group_id):
     consumer = KafkaConsumer(topic,
                              group_id=group_id,
                              value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-                             bootstrap_servers=['kafka:9092'],
+                             bootstrap_servers=['localhost:9092'],
                              consumer_timeout_ms=10000)
     return consumer

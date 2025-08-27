@@ -22,3 +22,6 @@ class Producer:
         """
         for i in message:
             self.publish_message(topic, i)    
+
+a = Producer()
+a.publish_message("test", {"message": "Hello World!"})
