@@ -31,7 +31,7 @@ class DAL:
             self.__client.close()
             logger.info("Database connection closed.")
 
-    def read_collection(self, collection_name, query):
+    def read_collection(self, collection_name, query=[]):
         """""
         Read a collection from the mongo database.
         """
