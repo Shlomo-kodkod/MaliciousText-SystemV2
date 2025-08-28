@@ -4,6 +4,7 @@ from services.dal import DAL
 from services.retriever.app import config 
 from services.kafka import producer
 
+
 logger = logging.getLogger(__name__)
 
 class Retrieval:
@@ -48,7 +49,3 @@ class Retrieval:
             else:
                 logger.info("No new tweets to process.")
                 break
-
-    
-a = Retrieval()
-a.run()
