@@ -13,7 +13,6 @@ class Producer:
         """
         logging.info(f"Publish json messages to: {str(topic)}")
         self.__producer.send(topic, message)
-        self.__producer.flush()
     
 
     def publish_messages(self, topic, message: list):
