@@ -6,8 +6,7 @@ from services.enricher.app import config
 from services.utiles.cleaner import TextCleaner
 
 
-logger =  logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__)
 
 
 class Enricher:
@@ -16,19 +15,23 @@ class Enricher:
         self.__weapons = None
 
     @staticmethod
-    def calculate_sentiment_score(text: str) -> str:
+    def calculate_sentiment_score(text: str) -> float:
         """
         Analyzes the sentiment of a given text string and returns a sentiment score.
         """
-        score= SentimentIntensityAnalyzer().polarity_scores(text)
-        result = score["compound"]
-        logger.info(f"Successfully calculated sentiment score.")
-        return result
-    
+        try:
+            score = SentimentIntensityAnalyzer().polarity_scores(text)
+            result = score["compound"]
+            logger.info(f"Successfully calculated sentiment score: {result}")
+            return result
+        except Exception as e:
+            logger.error(f"Failed to calculate sentiment score: {e}")
+            return 0.0
 
     def load_blacklist(self, file_path: str):
         """
-        Load a blacklist of weapons from data and return set of weapons.
+        Load a blacklist of weapons from data file and return set of weapons.
+
         """
         try:
             with open(file_path, 'r') as file:
@@ -49,17 +52,30 @@ class Enricher:
 
     def weapons_detector(self, tweet: dict, field: str = "text") -> dict:
         """
-        Add a new field to the DataFrame with detected weapons for each row.
+        Add a new field to the tweet with detected weapons.
+    
         """
         try:
             if not self.__weapons:
                 self.load_blacklist(config.blacklist_path)
-            tweet['weapons_detected'] = Enricher.find_weapons(tweet[field], self.__weapons)
-            logger.info("Successfully detected weapons.")
+            tweet['weapons_detected'] = Enricher.find_weapons(tweet.get(field, ""), self.__weapons)
+            logger.info("Successfully detected weapons in tweet")
         except Exception as e:
-            logger.error(f"Failed to detect weapons: {e}")
+            logger.error(f"Failed to detect weapons in tweet: {e}")
+            tweet['weapons_detected'] = []
         return tweet
-    
+
+    @staticmethod
+    def is_date(text: str) -> bool:
+        """
+        Checks if the text is a date.
+        """
+        try:
+            parsed_date = parse(word, fuzzy=True)
+            return True
+        except Exception:
+            return False
+        
 
     @staticmethod
     def find_latest_date(text: str):
@@ -67,23 +83,26 @@ class Enricher:
         Finds the latest date in the text, if any.
         """
         split_text = text.split()
-        dates = []
+        dates = [word for word in split_text if Enricher.is_date(word)]
 
-        try:
-            date = [parse(word, fuzzy=False) for word in split_text]
-        except Exception as e:
-            logger.error(f"Error: {e}")
-              
-
-        return max(dates) if dates else ""
+        if dates:
+            logger.info("Found latest date")
+            return max(dates)
+        else:
+            logger.info("No dates found in text")
+            return ""
 
     def processor(self, data: dict, field: str = "text") -> dict:
         """
         Process the text, and add new fields. 
         """
-        self.load_blacklist(config.blacklist_path)
-        data["sentiment"] = Enricher.calculate_sentiment_score(data[field])
-        data["weapons_detected"] = Enricher.find_weapons(data[field], self.__weapons)
-        data["relevant_timestamp"] = Enricher.find_latest_date(data[field])
-        return data
-    
+        try:
+            text_content = data.get(field, "")
+            data["sentiment"] = Enricher.calculate_sentiment_score(text_content)
+            data["weapons_detected"] = Enricher.find_weapons(text_content, self.__weapons)
+            data["relevant_timestamp"] = Enricher.find_latest_date(text_content)
+            logger.info("Successfully processed and enriched data")
+            return data
+        except Exception as e:
+            logger.error(f"Failed to process and enrich data: {e}")
+            return data 
