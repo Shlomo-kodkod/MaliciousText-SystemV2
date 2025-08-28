@@ -25,7 +25,7 @@ class Manager:
                     logger.error("Received tweet with None value")
                     continue 
                 processed_data = self.__enricher.processor(tweet_value, "clean_text")
-                if processed_data.get("label") == 1:
+                if processed_data.get("Antisemitic") == 1:
                     self.__producer.publish_message(config.next_topic1, processed_data)
                     logger.info("Published enriched antisemitic tweet to topic 1")
                 else:

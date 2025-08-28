@@ -1,6 +1,6 @@
 import time
 import logging
-from services.dal import DAL
+from services.utiles.dal import DAL
 from services.retriever.app import config 
 from services.kafka import producer
 
@@ -34,12 +34,12 @@ class Retrieval:
             logger.error(f"Failed to retrieve tweets: {e}")
             return None
     
-    def __publish_tweets(self, tweets: list, label: str = "antisemitic"):
+    def __publish_tweets(self, tweets: list, label: str = "Antisemitic"):
         """
         Publish tweets to appropriate Kafka topics.
         """
         try:
-            for record in tweet:
+            for record in tweets:
                 if record.get(label) == 1:
                     self.__producer.publish_message(config.topic1, record)
                 else:
@@ -55,7 +55,7 @@ class Retrieval:
         while True:
             tweets = self.__get_newest_tweets()
             if tweets:
-                self.__publish_tweet(tweets)
+                self.__publish_tweets(tweets)
                 time.sleep(60)
             else:
                 logger.info("No new tweets to process.")

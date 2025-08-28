@@ -42,13 +42,14 @@ class Enricher:
             logger.error(f"Failed to load blacklist: {e}")
             raise e
 
-    @staticmethod
-    def find_weapons(text: str, weapons: list) -> list:
+    def find_weapons(self, text: str, weapons: list) -> list:
         """
         Find weapons in the given text using the provided set of weapons.
         """
+        if not weapons:
+            return []
         found_weapons = [weapon for weapon in weapons if weapon in text]
-        return found_weapons if found_weapons else None
+        return found_weapons if found_weapons else []
 
     def weapons_detector(self, tweet: dict, field: str = "text") -> dict:
         """
@@ -58,7 +59,7 @@ class Enricher:
         try:
             if not self.__weapons:
                 self.load_blacklist(config.blacklist_path)
-            tweet['weapons_detected'] = Enricher.find_weapons(tweet.get(field, ""), self.__weapons)
+            tweet['weapons_detected'] = self.find_weapons(tweet.get(field, ""), self.__weapons)
             logger.info("Successfully detected weapons in tweet")
         except Exception as e:
             logger.error(f"Failed to detect weapons in tweet: {e}")
@@ -90,16 +91,19 @@ class Enricher:
             return max(dates)
         else:
             logger.info("No dates found in text")
-            return ""
+            return None
 
     def processor(self, data: dict, field: str = "text") -> dict:
         """
         Process the text, and add new fields. 
         """
         try:
+            if not self.__weapons:
+                self.load_blacklist(config.blacklist_path)
+                
             text_content = data.get(field, "")
             data["sentiment"] = Enricher.calculate_sentiment_score(text_content)
-            data["weapons_detected"] = Enricher.find_weapons(text_content, self.__weapons)
+            data["weapons_detected"] = self.find_weapons(text_content, self.__weapons)
             data["relevant_timestamp"] = Enricher.find_latest_date(text_content)
             logger.info("Successfully processed and enriched data")
             return data

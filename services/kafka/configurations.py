@@ -12,7 +12,7 @@ def get_producer_config():
     try:
         logger.info("Creating Kafka producer...")
         producer = KafkaProducer(
-            bootstrap_servers=['localhost:9092'],
+            bootstrap_servers=['broker:9092'],
             value_serializer=lambda x: json.dumps(x, default=lambda x: str(x)).encode('utf-8'))
         logger.info("Kafka producer created successfully")
         return producer
@@ -31,7 +31,7 @@ def get_consumer_events(*topics, group_id: str):
             *topics,
             group_id=group_id,
             value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-            bootstrap_servers=['localhost:9092'],
+            bootstrap_servers=['broker:9092'],
             auto_offset_reset='earliest')
         logger.info("Kafka consumer created successfully")
         return consumer

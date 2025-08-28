@@ -1,9 +1,7 @@
 import re
 import nltk
 from nltk.corpus import stopwords
-import string
-nltk.download('stopwords')
-nltk.download('wordnet')
+import logging
 
 
 logger = logging.getLogger(__name__)
@@ -18,6 +16,12 @@ class TextCleaner:
         """
         Remove all punctuation marks from the text.
         """
+        return re.sub(r'\s+', ' ', text).strip()
+
+    def _remove_special_characters(self, text):
+        return re.sub(r'[^a-zA-Z0-9\s]', '', text)
+
+    def _remove_unnecessary_whitespace(self, text):
         return re.sub(r'\s+', ' ', text).strip()
 
     def _to_lowercase(self, text: str) -> str:

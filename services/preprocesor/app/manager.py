@@ -27,7 +27,7 @@ class Manager:
                 original_text = tweet_value.get('text', '')
                 clean_text = self.text_cleaner.clean(original_text)
                 tweet_value['clean_text'] = clean_text
-                if tweet_value.get("label") == 1:
+                if tweet_value.get("Antisemitic") == 1:
                     self.producer.publish_message(config.next_topic1, tweet_value)
                     logger.info("Published preprocessed antisemitic tweet to topic 1")
                 else:
@@ -38,3 +38,4 @@ class Manager:
                 continue
     
 
+ 

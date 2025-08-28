@@ -2,7 +2,7 @@ import logging
 from services.kafka.producer import Producer
 from services.kafka import configurations
 from services.persister.app import config
-from services.dal import DAL
+from services.utiles.dal import DAL
 
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,7 @@ class Presister:
         Consumes enriched tweets from Kafka topics and saves them to MongoDB
         collections by topics.
         """
+        self.__dal.connect(config.db)
         event = configurations.get_consumer_events(config.prv_topic0, config.prv_topic1, group_id=config.group_id)
             
         for tweet in event:
@@ -25,7 +26,7 @@ class Presister:
                 if tweet_value is None:
                     logger.error("Received tweet with None value")
                     continue 
-                if tweet_value.get("label") == 1:
+                if tweet_value.get("Antisemitic") == 1:
                     self.__dal.create_document(config.collection_antisemitic, tweet_value)
                     logger.info("Saved antisemitic tweet to antisemitic collection")
                 else:
@@ -34,5 +35,6 @@ class Presister:
             except Exception as e:
                 logger.error(f"Failed to persist tweet: {e}")
                 continue
+        self.__dal.disconnect()
                 
        
