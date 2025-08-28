@@ -29,7 +29,7 @@ class Retrieval:
         except Exception as e:
             logger.error(f"Failed to retrieve tweets: {e}")
     
-    def __publish_tweet(self, tweet: list[dict], label: str = "Antisemitic"):
+    def __publish_tweet(self, tweet: list[dict], label: str = "antisemitic"):
         try:
             for record in tweet:
                 if record.get(label) == 1:
