@@ -20,7 +20,7 @@ class Manager:
             for tweet in event:
                 clean_text = self.text_cleaner.clean(tweet.value['text'])
                 tweet.value['clean_text'] = clean_text
-                if clean_text.get("antisemitic"):
+                if tweet.value.get("antisemitic"):
                     self.producer.publish_message(config.next_topic1, tweet.value)
                 else:
                     self.producer.publish_message(config.next_topic0, tweet.value)

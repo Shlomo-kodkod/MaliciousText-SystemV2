@@ -3,6 +3,7 @@ import nltk
 from nltk.corpus import stopwords
 import string
 nltk.download('stopwords')
+nltk.download('wordnet')
 
 class TextCleaner:
     def __init__(self):
@@ -30,9 +31,6 @@ class TextCleaner:
         return ' '.join([self.lemmatizer.lemmatize(word) for word in words])
 
     def clean(self, text: str):
-        if not isinstance(text, str):
-            return ""
-
         text = self._remove_punctuation(text)
         text = self._remove_special_characters(text)
         text = self._remove_unnecessary_whitespace(text)
