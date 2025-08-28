@@ -22,3 +22,4 @@ class Producer:
         """
         for i in message:
             self.publish_message(topic, i)    
+
