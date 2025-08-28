@@ -2,7 +2,6 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from dateutil.parser import parse
 import logging
-import datetime
 from services.enricher.app import config
 from services.utiles.cleaner import TextCleaner
 

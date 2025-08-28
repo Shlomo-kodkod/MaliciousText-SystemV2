@@ -5,11 +5,8 @@ logger = logging.getLogger(__name__)
 
 
 class DAL:
-    def __init__(self, protocol: str, username: str, password: str, cluster: str):
-        self.__protocol = protocol
-        self.__username = username
-        self.__password = password
-        self.__cluster = cluster 
+    def __init__(self, uri):
+        self.__uri = uri
         self.__client = None
         self.__db = None
 
@@ -18,7 +15,7 @@ class DAL:
         Connect to the mongo database.
         """
         try:
-            uri = f"{self.__protocol}://{self.__username}:{self.__password}@{self.__cluster}.mongodb.net/"
+            uri = self.__uri
             self.__client = MongoClient(uri)
             self.__db = self.__client[db]
             logger.info(f"Connected to mongodb.")
