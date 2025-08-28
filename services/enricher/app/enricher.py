@@ -61,29 +61,28 @@ class Enricher:
             logger.error(f"Failed to detect weapons: {e}")
         return tweet
     
-    @staticmethod
-    def is_date(string, fuzzy=False):
-        """
-        Return whether the string can be interpreted as a date.
-        """
-        try: 
-            parse(string, fuzzy=fuzzy)
-            return True
-        except ValueError:
-            return False
-    
+
     @staticmethod
     def find_latest_date(text: str):
         """
-
+        Finds the latest date in the text, if any.
         """
         split_text = text.split()
-        return  max([datetime.datetime.strptime(i, '%Y-%m-%d') for i in split_text if Enricher.is_date(i)])
-    
+        dates = []
+
+        try:
+            date = [parse(word, fuzzy=False) for word in split_text]
+        except Exception as e:
+            logger.error(f"Error: {e}")
+              
+
+        return max(dates) if dates else ""
+
     def processor(self, data: dict, field: str = "text") -> dict:
         """
+        Process the text, and add new fields. 
         """
-        self.__load_blacklist(config.blacklist_path)
+        self.load_blacklist(config.blacklist_path)
         data["sentiment"] = Enricher.calculate_sentiment_score(data[field])
         data["weapons_detected"] = Enricher.find_weapons(data[field], self.__weapons)
         data["relevant_timestamp"] = Enricher.find_latest_date(data[field])
