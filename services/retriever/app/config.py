@@ -8,3 +8,4 @@ db = os.getenv("MONGO_INITDB_DATABASE", "IranMalDB")
 collection = os.getenv("MONGO_COLLECTION", "tweets")
 topic1 = "raw_tweets_antisemitic"
 topic0 = "raw_tweets_not_antisemitic"
+uri=f"{protocol}://{username}:{password}@{cluster}.mongodb.net/"

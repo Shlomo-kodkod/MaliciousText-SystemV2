@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Retrieval:
     def __init__(self):
-        self.__dal = DAL(config.protocol, config.username, config.password, config.cluster)
+        self.__dal = DAL(config.uri)
         self.__producer = producer.Producer()
         self.__offset = 0
 
