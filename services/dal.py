@@ -18,9 +18,9 @@ class DAL:
             uri = self.__uri
             self.__client = MongoClient(uri)
             self.__db = self.__client[db]
-            logger.info(f"Connected to mongodb.")
+            logger.info(f"Connected to MongoDB database: {db}")
         except Exception as e:
-            logger.error(f"Failed to connect to mongodb: {e}")
+            logger.error(f"Failed to connect to MongoDB: {e}")
             raise e
 
     def disconnect(self):
@@ -31,22 +31,25 @@ class DAL:
             self.__client.close()
             logger.info("Database connection closed.")
 
-    def read_collection(self, collection_name, query=[]):
-        """""
-        Read a collection from the mongo database.
+    def read_collection(self, collection_name: str, query: list = None):
         """
+        Read a collection from the MongoDB database.
+        """
+        if query is None:
+            query = []
+            
         try:
             collection = self.__db[collection_name]
             data = list(collection.aggregate(query))
             logger.info(f"Data loaded successfully.")
             return data
         except Exception as e:
-            logger.error(f"Failed to retrieve collection: {e}")
+            logger.error(f"Failed to retrieve collection : {e}")
             raise e
         
-    def create_document(self, collection_name, data: dict):
+    def create_document(self, collection_name: str, data: dict):
         """
-        Create a soldier document and insert into the mongodb collection.
+        Create a document and insert into the mongodb collection.
         """
         try:
             collection = self.__db[collection_name]
