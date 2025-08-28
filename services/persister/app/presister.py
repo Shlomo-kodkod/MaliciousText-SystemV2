@@ -5,8 +5,7 @@ from services.persister.app import config
 from services.dal import DAL
 
 
-logger =  logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__)
 
 
 class Presister:
@@ -14,16 +13,26 @@ class Presister:
         self.__dal = DAL(config.uri)
 
     def run(self):
-        try:
+        """
+        Consumes enriched tweets from Kafka topics and saves them to MongoDB
+        collections by topics.
+        """
             event = configurations.get_consumer_events(config.prv_topic0, config.prv_topic1, group_id=config.group_id)
-            for tweet in event:
-                if tweet.value is None:
+            
+        for tweet in event:
+            try:
+                tweet_value = tweet.value
+                if tweet_value is None:
                     logger.error("Received tweet with None value")
                     continue 
-                if tweet.value.get("antisemitic"):
-                    self.__dal.create_document(config.collection_antisemitic, tweet.value)
+                if tweet_value.get("label") == 1:
+                    self.__dal.create_document(config.collection_antisemitic, tweet_value)
+                    logger.info("Saved antisemitic tweet to antisemitic collection")
                 else:
-                    self.__dal.create_document(config.collection_not_antisemitic, tweet.value)
-                logger.info(f"Published  tweets to mongo by topic.")
-        except Exception as e:
-            logger.error(f"Failed to publish tweets: {e}")
+                    self.__dal.create_document(config.collection_not_antisemitic, tweet_value)
+                    logger.info("Saved non-antisemitic tweet to non-antisemitic collection")      
+            except Exception as e:
+                logger.error(f"Failed to persist tweet: {e}")
+                continue
+                
+       
