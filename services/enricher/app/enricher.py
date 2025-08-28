@@ -71,7 +71,7 @@ class Enricher:
         Checks if the text is a date.
         """
         try:
-            parsed_date = parse(word, fuzzy=True)
+            parsed_date = parse(text, fuzzy=True)
             return True
         except Exception:
             return False

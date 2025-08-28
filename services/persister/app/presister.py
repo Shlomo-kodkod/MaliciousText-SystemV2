@@ -17,7 +17,7 @@ class Presister:
         Consumes enriched tweets from Kafka topics and saves them to MongoDB
         collections by topics.
         """
-            event = configurations.get_consumer_events(config.prv_topic0, config.prv_topic1, group_id=config.group_id)
+        event = configurations.get_consumer_events(config.prv_topic0, config.prv_topic1, group_id=config.group_id)
             
         for tweet in event:
             try:

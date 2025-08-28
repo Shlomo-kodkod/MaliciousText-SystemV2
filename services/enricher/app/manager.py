@@ -21,6 +21,9 @@ class Manager:
         for tweet in event:
             try:
                 tweet_value = tweet.value
+                if tweet_value is None:
+                    logger.error("Received tweet with None value")
+                    continue 
                 processed_data = self.__enricher.processor(tweet_value, "clean_text")
                 if processed_data.get("label") == 1:
                     self.__producer.publish_message(config.next_topic1, processed_data)
