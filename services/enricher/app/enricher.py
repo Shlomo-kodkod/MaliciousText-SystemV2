@@ -5,6 +5,8 @@ import logging
 import datetime
 from services.enricher.app import config
 
+
+
 logger =  logging.getLogger(__name__)
 
 
@@ -43,12 +45,13 @@ class Enricher:
         found_weapons = [weapon for weapon in weapons if weapon in text]
         return found_weapons if found_weapons else None
 
-    def weapons_detector(self, tweet: dict, field: str = "text") -> dict:
+    @staticmethod
+    def weapons_detector(tweet: dict, field: str = "text") -> dict:
         """
         Add a new field to the DataFrame with detected weapons for each row.
         """
         try:
-            weapons = self.load_blacklist(config.blacklist_path)
+            weapons = Enricher.load_blacklist(config.blacklist_path)
             tweet['weapons_detected'] = Enricher.find_weapons(tweet[field], weapons)
             logger.info("Successfully detected weapons.")
         except Exception as e:
@@ -74,8 +77,7 @@ class Enricher:
         split_text = text.split()
         return  max([datetime.datetime.strptime(i, '%Y-%m-%d') for i in split_text if Enricher.is_date(i)])
     
-    @staticmethod
-    def processor(data: dict, field: str = "text") -> dict:
+    def processor(self, data: dict, field: str = "text") -> dict:
         """
         """
         weapons = Enricher.load_blacklist(config.blacklist_path)
@@ -83,3 +85,4 @@ class Enricher:
         data["weapons_detected"] = Enricher.find_weapons(data[field], weapons)
         data["relevant_timestamp"] = Enricher.find_latest_date(data[field])
         return data
+    

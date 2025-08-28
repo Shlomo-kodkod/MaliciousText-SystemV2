@@ -16,7 +16,7 @@ class Retrieval:
     def __get_newest_tweets(self, sort_by: str ="CreateDate", limit: int = 100):
         query = [
     { "$sort": { sort_by: -1 } },
-    { "$skip": 0 },
+    { "$skip": self.__offset },
     { "$limit": limit },
     { "$project": { "_id": 0 } }]
         try:
