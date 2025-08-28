@@ -1,56 +1,42 @@
 import re
-from pydoc import text
-import pandas as pd
 import nltk
 from nltk.corpus import stopwords
+import string
 nltk.download('stopwords')
 
-
 class TextCleaner:
-    def __init__(self,data:str):
-        self.Data = data
+    def __init__(self):
+        self.lemmatizer = nltk.stem.WordNetLemmatizer()
+        self.stop_words = set(stopwords.words('english'))
 
+    def _remove_punctuation(self, text):
+        return text.translate(str.maketrans('', '', string.punctuation))
 
-    def removing_punctuation_marks(self):
-        self.Data = re.sub(r"[^\w\s]", "", self.Data)
-       
-    def removing_special_characters(self):
-        self.Data = re.sub(r"[^a-zA-Z0-9\s]", "", self.Data)
+    def _remove_special_characters(self, text):
+        return re.sub(r'[^a-zA-Z0-9\s]', '', text)
 
-    def removing_unnecessary_whitespace(self):
-        self.Data = re.sub(r'\s+', ' ', self.Data).strip()
+    def _remove_unnecessary_whitespace(self, text):
+        return re.sub(r'\s+', ' ', text).strip()
 
-    @staticmethod
-    def removing_stop_word(txt):
-        stop_words = set(stopwords.words('english'))
-        x = txt.split()
-        x = [word for word in x if word not in stop_words]
-        return ' '.join(x)
+    def _to_lowercase(self, text):
+        return text.lower()
 
-    def removing_stop_words(self):
-        self.Data = self.Data.apply(TextCleaner.removing_stop_word)
+    def _remove_stopwords(self, text):
+        words = text.split()
+        return ' '.join([word for word in words if word not in self.stop_words])
 
-    def convert_to_lowercase(self):
-        self.Data = self.Data.lower()
+    def _lemmatize(self, text):
+        words = text.split()
+        return ' '.join([self.lemmatizer.lemmatize(word) for word in words])
 
-    @staticmethod
-    def row_lemmatize(txt):
-        x = txt.split()
-        lemmatizer = nltk.stem.WordNetLemmatizer()
-        x = [lemmatizer.lemmatize(word) for word in x]
-        return ' '.join(x)
+    def clean(self, text: str):
+        if not isinstance(text, str):
+            return ""
 
-    def lemmatize(self):
-        self.Data = self.Data.apply(TextCleaner.row_lemmatize)
-
-
-    def clean(self):
-        self.removing_punctuation_marks()
-        self.removing_special_characters()
-        self.removing_unnecessary_whitespace()
-        self.convert_to_lowercase()
-        self.removing_stop_words()
-        self.lemmatize()
-        return self.Data
-        
-
+        text = self._remove_punctuation(text)
+        text = self._remove_special_characters(text)
+        text = self._remove_unnecessary_whitespace(text)
+        text = self._to_lowercase(text)
+        text = self._remove_stopwords(text)
+        text = self._lemmatize(text)
+        return text
