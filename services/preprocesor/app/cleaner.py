@@ -1,3 +1,4 @@
+import re
 from pydoc import text
 import pandas as pd
 import nltk
@@ -9,19 +10,20 @@ class TextCleaner:
     def __init__(self,data:str):
         self.Data = data
 
-    def removing_punctuation_marks(self):
-        self.Data = self.Data.str.replace('[^\w\s]', '', regex=True)
 
+    def removing_punctuation_marks(self):
+        self.Data = re.sub(r"[^\w\s]", "", self.Data)
+       
     def removing_special_characters(self):
-        self.Data = self.Data.str.replace('[^a-zA-Z0-9]', ' ', regex=True)
+        self.Data = re.sub(r"[^a-zA-Z0-9\s]", "", self.Data)
 
     def removing_unnecessary_whitespace(self):
-        self.Data = self.Data.str.replace('\s+', ' ', regex=True).str.strip()
+        self.Data = re.sub(r'\s+', ' ', self.Data).strip()
 
     @staticmethod
-    def removing_stop_word(text):
+    def removing_stop_word(txt):
         stop_words = set(stopwords.words('english'))
-        x = text.split()
+        x = txt.split()
         x = [word for word in x if word not in stop_words]
         return ' '.join(x)
 
@@ -29,14 +31,26 @@ class TextCleaner:
         self.Data = self.Data.apply(TextCleaner.removing_stop_word)
 
     def convert_to_lowercase(self):
-        self.Data = self.Data.str.lower()
+        self.Data = self.Data.lower()
 
     @staticmethod
-    def row_lemmatize(text):
-        x = text.split()
+    def row_lemmatize(txt):
+        x = txt.split()
         lemmatizer = nltk.stem.WordNetLemmatizer()
         x = [lemmatizer.lemmatize(word) for word in x]
         return ' '.join(x)
 
     def lemmatize(self):
         self.Data = self.Data.apply(TextCleaner.row_lemmatize)
+
+
+    def clean(self):
+        self.removing_punctuation_marks()
+        self.removing_special_characters()
+        self.removing_unnecessary_whitespace()
+        self.convert_to_lowercase()
+        self.removing_stop_words()
+        self.lemmatize()
+        return self.Data
+        
+
