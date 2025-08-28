@@ -1,13 +1,13 @@
 import logging
 from services.kafka.configurations import get_producer_config
 
-
+logger = logging.getLogger(__name__)
 
 class Producer:
     def __init__(self):
         self.__producer = get_producer_config()
 
-    def publish_message(self, topic, message):
+    def publish_message(self, topic: str, message):
         """
         Publish message to the topic which is received as a parameter.
         """
