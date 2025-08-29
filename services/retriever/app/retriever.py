@@ -13,12 +13,12 @@ class Retrieval:
         self.__producer = producer.Producer()
         self.__offset = 0
 
-    def __get_newest_tweets(self, sort_by: str = "CreateDate", limit: int = 100):
+    def __get_oldest_tweets(self, sort_by: str = "CreateDate", limit: int = 100):
         """
         Retrieve the newest tweets from the database.
         """
         query = [
-            { "$sort": { sort_by: -1 } },
+            { "$sort": { sort_by: 1 } },
             { "$skip": self.__offset },
             { "$limit": limit },
             { "$project": { "_id": 0 } }]
@@ -53,10 +53,8 @@ class Retrieval:
         retrieves new tweets from the database and publishes them to Kafka.
         """        
         while True:
-            tweets = self.__get_newest_tweets()
+            tweets = self.__get_oldest_tweets()
             if tweets:
                 self.__publish_tweets(tweets)
-                time.sleep(60)
-            else:
-                logger.info("No new tweets to process.")
-                break
+            time.sleep(60)
+            

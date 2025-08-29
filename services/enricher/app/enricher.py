@@ -1,6 +1,6 @@
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from dateutil.parser import parse
+import datefinder
 import logging
 from services.enricher.app import config
 from services.utiles.cleaner import TextCleaner
@@ -15,7 +15,7 @@ class Enricher:
         self.__weapons = None
 
     @staticmethod
-    def calculate_sentiment_score(text: str) -> float:
+    def calculate_sentiment_score(text: str) -> str:
         """
         Analyzes the sentiment of a given text string and returns a sentiment score.
         """
@@ -23,7 +23,9 @@ class Enricher:
             score = SentimentIntensityAnalyzer().polarity_scores(text)
             result = score["compound"]
             logger.info(f"Successfully calculated sentiment score: {result}")
-            return result
+            if result >= 0.05: return "positive"
+            elif result <= -0.05: return "negative"
+            else: return "neutral"
         except Exception as e:
             logger.error(f"Failed to calculate sentiment score: {e}")
             return 0.0
@@ -46,26 +48,9 @@ class Enricher:
         """
         Find weapons in the given text using the provided set of weapons.
         """
-        if not weapons:
-            return []
-        found_weapons = [weapon for weapon in weapons if weapon in text]
-        return found_weapons if found_weapons else []
-
-    def weapons_detector(self, tweet: dict, field: str = "text") -> dict:
-        """
-        Add a new field to the tweet with detected weapons.
-    
-        """
-        try:
-            if not self.__weapons:
-                self.load_blacklist(config.blacklist_path)
-            tweet['weapons_detected'] = self.find_weapons(tweet.get(field, ""), self.__weapons)
-            logger.info("Successfully detected weapons in tweet")
-        except Exception as e:
-            logger.error(f"Failed to detect weapons in tweet: {e}")
-            tweet['weapons_detected'] = []
-        return tweet
-
+        found_weapons = [w for w in weapons if w in text]
+        return found_weapons 
+        
     @staticmethod
     def is_date(text: str) -> bool:
         """
@@ -83,24 +68,22 @@ class Enricher:
         """
         Finds the latest date in the text, if any.
         """
-        split_text = text.split()
-        dates = [word for word in split_text if Enricher.is_date(word)]
-
-        if dates:
+        matches = list(datefinder.find_dates(text, index=False))
+        if matches:
             logger.info("Found latest date")
-            return max(dates)
+            return max(matches)
         else:
             logger.info("No dates found in text")
-            return None
+            return " "
 
     def processor(self, data: dict, field: str = "text") -> dict:
         """
         Process the text, and add new fields. 
         """
         try:
-            if not self.__weapons:
+            if not isinstance(self.__weapons, list):
                 self.load_blacklist(config.blacklist_path)
-                
+            
             text_content = data.get(field, "")
             data["sentiment"] = Enricher.calculate_sentiment_score(text_content)
             data["weapons_detected"] = self.find_weapons(text_content, self.__weapons)

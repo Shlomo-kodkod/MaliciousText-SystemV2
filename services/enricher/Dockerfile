@@ -12,4 +12,8 @@ COPY services/enricher/app ./services/enricher/app
 COPY services/kafka ./services/kafka
 COPY services/utiles/cleaner.py ./services/utiles/cleaner.py
 
+COPY data/weapon_list.txt /app/data/weapon_list.txt
+ENV BLACKLIST_PATH=/app/data/weapon_list.txt
+
+
 CMD ["python", "-m", "services.enricher.app.main"]
