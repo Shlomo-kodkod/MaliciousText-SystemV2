@@ -1,5 +1,5 @@
 import logging
-from services.persister.app.presister import Presister
+from services.persister.app.persister import Persister
 
 
 logging.basicConfig(
@@ -9,7 +9,7 @@ logging.basicConfig(
 
 
 def main():
-    persister = Presister()
+    persister = Persister()
     persister.run()
 
 if __name__ == "__main__":

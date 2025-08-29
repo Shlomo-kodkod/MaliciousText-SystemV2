@@ -1,6 +1,6 @@
 import time
 import logging
-from services.utiles.dal import DAL
+from services.utils.dal import DAL
 from services.retriever.app import config 
 from services.kafka import producer
 

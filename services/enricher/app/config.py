@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 
 blacklist_path = os.getenv("BLACKLIST_PATH", "/app/data/weapons_blacklist.txt")

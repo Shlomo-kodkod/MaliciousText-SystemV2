@@ -3,7 +3,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import datefinder
 import logging
 from services.enricher.app import config
-from services.utiles.cleaner import TextCleaner
+from services.utils.cleaner import TextCleaner
 
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 import logging
-from services.preprocesor.app.manager import Manager
+from services.preprocessor.app.manager import Manager
 
 logging.basicConfig(
     level=logging.INFO,
