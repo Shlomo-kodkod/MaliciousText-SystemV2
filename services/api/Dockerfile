@@ -6,7 +6,7 @@ COPY services/api/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY services/api/app ./services/api/app
-COPY services/utiles/dal.py ./services/utiles/dal.py
+COPY services/utils/dal.py ./services/utils/dal.py
 
 EXPOSE 8080
 

@@ -2,13 +2,12 @@ import logging
 from services.kafka.producer import Producer
 from services.kafka import configurations
 from services.persister.app import config
-from services.utiles.dal import DAL
+from services.utils.dal import DAL
 
 
 logger = logging.getLogger(__name__)
 
-
-class Presister:
+class Persister:
     def __init__(self):
         self.__dal = DAL(config.uri)
 

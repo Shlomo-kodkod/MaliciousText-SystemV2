@@ -1,7 +1,7 @@
 from fastapi import FastAPI 
 from fastapi.responses import JSONResponse
 import logging
-from services.utiles.dal import DAL
+from services.utils.dal import DAL
 from services.api.app import config
 
 

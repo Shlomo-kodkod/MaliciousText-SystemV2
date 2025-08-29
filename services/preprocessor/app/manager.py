@@ -1,8 +1,8 @@
 import logging
-from services.preprocesor.app import config
+from services.preprocessor.app import config
 from services.kafka.producer import Producer
 from services.kafka import configurations
-from services.utiles.cleaner import TextCleaner
+from services.utils.cleaner import TextCleaner
 
 
 logger = logging.getLogger(__name__)
