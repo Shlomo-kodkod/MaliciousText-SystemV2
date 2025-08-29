@@ -23,8 +23,8 @@ class Enricher:
             score = SentimentIntensityAnalyzer().polarity_scores(text)
             result = score["compound"]
             logger.info(f"Successfully calculated sentiment score: {result}")
-            if result >= 0.05: return "positive"
-            elif result <= -0.05: return "negative"
+            if result >= 0.5: return "positive"
+            elif result <= -0.5: return "negative"
             else: return "neutral"
         except Exception as e:
             logger.error(f"Failed to calculate sentiment score: {e}")
