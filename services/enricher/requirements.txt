@@ -1,0 +1,3 @@
+nltk
+kafka-python
+datefinder

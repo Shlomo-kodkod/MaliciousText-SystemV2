@@ -1,6 +1,6 @@
 import time
 import logging
-from services.dal import DAL
+from services.utiles.dal import DAL
 from services.retriever.app import config 
 from services.kafka import producer
 
@@ -13,12 +13,16 @@ class Retrieval:
         self.__producer = producer.Producer()
         self.__offset = 0
 
-    def __get_newest_tweets(self, sort_by: str ="CreateDate", limit: int = 100):
+    def __get_oldest_tweets(self, sort_by: str = "CreateDate", limit: int = 100):
+        """
+        Retrieve the newest tweets from the database.
+        """
         query = [
-    { "$sort": { sort_by: -1 } },
-    { "$skip": self.__offset },
-    { "$limit": limit },
-    { "$project": { "_id": 0 } }]
+            { "$sort": { sort_by: 1 } },
+            { "$skip": self.__offset },
+            { "$limit": limit },
+            { "$project": { "_id": 0 } }]
+        
         try:
             self.__dal.connect(config.db)
             data = self.__dal.read_collection(config.collection, query)
@@ -28,24 +32,29 @@ class Retrieval:
             return data
         except Exception as e:
             logger.error(f"Failed to retrieve tweets: {e}")
+            return None
     
-    def __publish_tweet(self, tweet: list[dict], label: str = "antisemitic"):
+    def __publish_tweets(self, tweets: list, label: str = "Antisemitic"):
+        """
+        Publish tweets to appropriate Kafka topics.
+        """
         try:
-            for record in tweet:
+            for record in tweets:
                 if record.get(label) == 1:
                     self.__producer.publish_message(config.topic1, record)
                 else:
                     self.__producer.publish_message(config.topic0, record)
-                logger.info(f"Published {len(tweet)} tweets to Kafka by topic.")
+                logger.info(f"Published tweets to Kafka by topic.")
         except Exception as e:
             logger.error(f"Failed to publish tweets: {e}")
     
     def run(self):
+        """
+        retrieves new tweets from the database and publishes them to Kafka.
+        """        
         while True:
-            tweets = self.__get_newest_tweets()
+            tweets = self.__get_oldest_tweets()
             if tweets:
-                self.__publish_tweet(tweets)
-                time.sleep(60)
-            else:
-                logger.info("No new tweets to process.")
-                break
+                self.__publish_tweets(tweets)
+            time.sleep(60)
+            

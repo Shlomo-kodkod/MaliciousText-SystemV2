@@ -1,17 +1,22 @@
 import re
 import nltk
 from nltk.corpus import stopwords
-import string
-nltk.download('stopwords')
-nltk.download('wordnet')
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 class TextCleaner:
     def __init__(self):
         self.lemmatizer = nltk.stem.WordNetLemmatizer()
         self.stop_words = set(stopwords.words('english'))
 
-    def _remove_punctuation(self, text):
-        return text.translate(str.maketrans('', '', string.punctuation))
+    def _remove_punctuation(self, text: str) -> str:
+        """
+        Remove all punctuation marks from the text.
+        """
+        return re.sub(r'\s+', ' ', text).strip()
 
     def _remove_special_characters(self, text):
         return re.sub(r'[^a-zA-Z0-9\s]', '', text)
@@ -19,18 +24,29 @@ class TextCleaner:
     def _remove_unnecessary_whitespace(self, text):
         return re.sub(r'\s+', ' ', text).strip()
 
-    def _to_lowercase(self, text):
+    def _to_lowercase(self, text: str) -> str:
+        """
+        Convert text to lowercase.
+        """
         return text.lower()
 
-    def _remove_stopwords(self, text):
+    def _remove_stopwords(self, text: str) -> str:
+        """
+        Remove common English stopwords from the text.
+        """
         words = text.split()
-        return ' '.join([word for word in words if word not in self.stop_words])
+        filtered_words = [word for word in words if word not in self.stop_words]
+        return ' '.join(filtered_words)
 
-    def _lemmatize(self, text):
+    def _lemmatize(self, text: str) -> str:
+        """
+        Lemmatize words in the text to their base form.
+        """
         words = text.split()
-        return ' '.join([self.lemmatizer.lemmatize(word) for word in words])
+        lemmatized_words = [self.lemmatizer.lemmatize(word) for word in words]
+        return ' '.join(lemmatized_words)
 
-    def clean(self, text: str):
+    def clean(self, text: str) -> str:
         text = self._remove_punctuation(text)
         text = self._remove_special_characters(text)
         text = self._remove_unnecessary_whitespace(text)

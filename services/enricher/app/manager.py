@@ -12,16 +12,27 @@ class Manager:
         self.__enricher = Enricher()
 
     def run(self):
-        try:
-            event = configurations.get_consumer_events(config.prv_topic0, config.prv_topic1, group_id=config.group_id)
-            for tweet in event:
-                processed_data = self.__enricher.processor(tweet.value, "clean_text")
-                if processed_data.get("antisemitic"):
+        """
+        Consumes tweets from Kafka topics, enriches them, and publishes
+        the enriched tweets by topics.
+        """    
+        event = configurations.get_consumer_events(config.prv_topic0, config.prv_topic1, group_id=config.group_id)
+        
+        for tweet in event:
+            try:
+                tweet_value = tweet.value
+                if tweet_value is None:
+                    logger.error("Received tweet with None value")
+                    continue 
+                processed_data = self.__enricher.processor(tweet_value, "clean_text")
+                if processed_data.get("Antisemitic") == 1:
                     self.__producer.publish_message(config.next_topic1, processed_data)
+                    logger.info("Published enriched antisemitic tweet to topic 1")
                 else:
                     self.__producer.publish_message(config.next_topic0, processed_data)
-                logger.info(f"Published {len(tweet)} tweets to Kafka by topic.")
-        except Exception as e:
-            logger.error(f"Failed to publish tweets: {e}")
-
+                    logger.info("Published enriched non-antisemitic tweet to topic 0")     
+            except Exception as e:
+                logger.error(f"Failed to process tweet: {e}")
+                continue
+        
 
